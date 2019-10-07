@@ -3,7 +3,7 @@
  */
 
 /*
-  PROJECT="${HOME}/projects/moto-design/mx-graphics/design-aides/svg-generators"
+  PROJECT="${HOME}/projects/moto-design/svg-generators"
   (cd ${PROJECT} && ./bootstrap) && ${PROJECT}/configure --enable-debug
 */
 
