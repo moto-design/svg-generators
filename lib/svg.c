@@ -76,6 +76,20 @@ void svg_close_polygon(FILE *stream)
 	fprintf(stream, "   \"\n");
 }
 
+...
+void svg_write_line(FILE *stream, const char *id, const char *fill,
+	const char *stroke, unsigned int stroke_width,
+	const struct svg_rect *rect)
+{
+	svg_open_object(stream, "rect", id, fill, stroke, stroke_width);
+
+	fprintf(stream,
+		"   width=\"%f\"\n   height=\"%f\"\n   x=\"%f\"\n   y=\"%f\"\n   rx=\"%f\"\n",
+		rect->width, rect->height, rect->x, rect->y, rect->rx);
+
+	svg_close_object(stream);
+}
+
 void svg_write_rect(FILE *stream, const char *id, const char *fill,
 	const char *stroke, unsigned int stroke_width,
 	const struct svg_rect *rect)
