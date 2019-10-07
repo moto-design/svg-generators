@@ -12,6 +12,11 @@ static inline float deg_to_rad(float deg)
 	return deg * M_PI / 180.0;
 }
 
+static inline float rad_to_deg(float rad)
+{
+	return rad * 180.0 / M_PI;
+}
+
 struct point_c {
 	float x;
 	float y;
@@ -41,42 +46,77 @@ void debug_print_cart(const char *msg, const struct point_c *c);
 void debug_print_polar(const char *msg, const struct point_p *p);
 void debug_print_pc(const char *msg, const struct point_pc *pc);
 
-struct segment_c {
+struct line_c {
 	struct point_c a;
 	struct point_c b;
 	float slope;
 	float intercept;
 };
 
-struct segment_p {
+struct line_p {
 	struct point_p a;
 	struct point_p b;
 };
 
-void debug_print_segment(const char *msg, const struct segment_c *seg);
+void debug_print_line(const char *msg, const struct line_c *line);
 
-static inline float segment_slope(struct segment_c *seg)
+static inline float line_slope(struct line_c *line)
 {	
-	return (seg->b.y - seg->a.y) / (seg->b.x - seg->a.x);
+	return (line->b.y - line->a.y) / (line->b.x - line->a.x);
 }
 
-static inline float segment_intercept(struct segment_c *seg)
+static inline float line_intercept(struct line_c *line)
 {
-	return seg->a.y - (seg->slope * seg->a.x);
+	return line->a.y - (line->slope * line->a.x);
 }
 
-static inline struct segment_c *segment_init(struct segment_c *seg,
+static inline struct line_c *line_init(struct line_c *line,
 	const struct point_c *a, const struct point_c *b)
 {
-	seg->a = *a;
-	seg->b = *b;
-	seg->slope = segment_slope(seg);
-	seg->intercept = segment_intercept(seg);
+	line->a = *a;
+	line->b = *b;
+	line->slope = line_slope(line);
+	line->intercept = line_intercept(line);
 	
-	return seg;
+	return line;
 }
 
-struct point_c segment_intersection(const struct segment_c *seg1,
-	const struct segment_c *seg2);
+struct point_c line_intersection(const struct line_c *line1,
+	const struct line_c *line2);
+
+struct star_params {
+	unsigned int points;
+	unsigned int density;
+	float radius;
+	float rotation;
+};
+
+struct polygon_star {
+	float points;
+	float radius;
+	float rotation;
+	float sector_angle;
+	float inner_radius;
+};
+
+struct node_buffer {
+	unsigned int node_count;
+	struct point_c *nodes;
+};
+
+void polygon_star_init(const struct star_params *star_params,
+	struct polygon_star *ps);
+void polygon_star_generate(const struct polygon_star *ps,
+	struct node_buffer *nb);
+static inline void polygon_star_setup(const struct star_params *star_params,
+	struct node_buffer *nb)
+{
+	struct polygon_star ps;
+
+	polygon_star_init(star_params, &ps);
+	polygon_star_generate(&ps, nb);
+}
+
+void node_buffer_clean(struct node_buffer *nb);
 
 #endif /* _MD_GENERATOR_GEOMETRY_H */

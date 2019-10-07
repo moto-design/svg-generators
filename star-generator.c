@@ -36,13 +36,6 @@ static void print_bugreport(void)
 	fprintf(stderr, "Report bugs at " PACKAGE_BUGREPORT ".\n");
 }
 
-struct star_params {
-	unsigned int points;
-	unsigned int density;
-	float radius;
-	float rotation;
-};
-
 enum opt_value {opt_undef = 0, opt_yes, opt_no};
 
 struct opts {
@@ -61,10 +54,10 @@ static const struct star_params init_star_params = {
 };
 
 static const struct star_params default_star_params = {
-	.points = 5,
-	.density = 2,
-	.radius = 10000.0 * 4.0 / 13.0 / 5.0 / 2.0,
-	.rotation = 90.0,
+	.points = 7,
+	.density = 3,
+	.radius = 100,
+	.rotation = 0.0,
 };
 
 static void print_usage(const struct opts *opts)
@@ -75,10 +68,10 @@ static void print_usage(const struct opts *opts)
 "%s - Generates SVG file of a star.\n"
 "Usage: %s [flags]\n"
 "Option flags:\n"
-"  --points          - Star number of points (vertices). Default: '%u'.\n"
-"  --density         - Star polygon density. Default: '%u'.\n"
-"  --radius          - Star radius. Default: '%f'.\n"
-"  --rotation        - Star rotation. Default: '%f'.\n"
+"  --points          - Number of points (vertices). Default: '%u'.\n"
+"  --density         - Polygon density. Default: '%u'.\n"
+"  --radius          - Radius. Default: '%f'.\n"
+"  --rotation        - Rotation. Default: '%f'.\n"
 "  -o --output-file  - Output file. Default: '%s'.\n"
 "  -h --help         - Show this help and exit.\n"
 "  -v --verbose      - Verbose execution.\n"
@@ -207,104 +200,47 @@ static int opts_parse(struct opts *opts, int argc, char *argv[])
 	return optind != argc;
 }
 
-struct star {
-	unsigned int node_count;
-	struct node *nodes;
-};
-
-static void init_segments(const struct star_params *star_params,
-	float sector_angle, struct segment_c *seg1, struct segment_c *seg2)
-{
-	struct point_p pp;
-
-	pp.r = star_params->radius;
-
-	pp.t = 0.0;
-	polar_to_cart(&pp, &seg1->a);
-	
-	//pp.r = star_params->radius;
-	pp.t += 2.0 * sector_angle * star_params->density;
-	polar_to_cart(&pp, &seg1->b);
-
-	seg1->slope = segment_slope(seg1);
-	seg1->intercept = segment_intercept(seg1);
-
-	debug_print_segment("seg1 ", seg1);
-
-	pp.t = 2.0 * sector_angle;
-	polar_to_cart(&pp, &seg2->a);
-	
-	pp.t += 2.0 * sector_angle * star_params->density;
-	polar_to_cart(&pp, &seg2->b);
-
-	seg2->slope = segment_slope(seg2);
-	seg2->intercept = segment_intercept(seg2);
-
-	debug_print_segment("seg2 ", seg2);
-
-	debug("<\n");
-}
-
-static float get_inner_radius(const struct segment_c *seg1,
-	const struct segment_c *seg2)
-{
-	struct point_pc pc;
-	
-	pc.c = segment_intersection(seg1, seg2);
-	pc_cart_to_polar(&pc);
-	
-	return pc.p.r;
-}
-
 static void write_star(FILE* out_stream, const struct star_params *star_params)
 {
 	static const struct stroke stroke = {.color = "#0000ff", .width = 3};
 	static const struct fill fill = {.color = "#ffdd00"};
-	const unsigned int node_count = 2.0 * star_params->points;
-	const float sector_angle = 360.0 / node_count;
-	float inner_radius;
+	struct node_buffer nb;
 	unsigned int node;
-	struct point_pc pc;
-	struct segment_c seg1;
-	struct segment_c seg2;
 	char star_id[256];
 
 	snprintf(star_id, sizeof(star_id), "start_%d", star_params->points);
-	
-	init_segments(star_params, sector_angle, &seg1, &seg2);
-	inner_radius = get_inner_radius(&seg1, &seg2);
-
-	debug("points       = %u\n", star_params->points);
-	debug("density      = %u\n", star_params->density);
-	debug("radius       = %f\n", star_params->radius);
-	debug("sector_angle = %f\n", sector_angle);
-	debug("inner_radius = %f\n", inner_radius);
 
 	svg_open_polygon(out_stream, star_id, fill.color, stroke.color, stroke.width);
 
-	for (node = 0, pc.p.r = star_params->radius, pc.p.t = sector_angle;
-		node < node_count;
-		node++, pc.p.t += sector_angle, pc.p.r = (node % 2)
-			? inner_radius : star_params->radius) {
+	polygon_star_setup(star_params, &nb);
 
-		debug("node = %u, angle = %f, radius = %f\n", node, pc.p.t, pc.p.r);
-		pc_polar_to_cart(&pc);
-		fprintf(out_stream, "     %f,%f\n", pc.c.x, pc.c.y);
+	for (node = 0; node < nb.node_count; node++) {
+
+		fprintf(out_stream, "     %f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
+		//debug("node_%u: cart = {%f, %f}\n", node, nb.nodes[node].x,
+		//	nb.nodes[node].y);
 	}
 
 	svg_close_polygon(out_stream);
 	svg_close_object(out_stream);
+
+	node_buffer_clean(&nb);
 }
 
 static void write_svg(FILE* out_stream, const struct star_params *star_params)
 {
 	struct svg_rect background_rect;
 
-	background_rect.width = 3 * star_params->radius;
+	background_rect.width = 2.6 * star_params->radius;
 	background_rect.height = background_rect.width;
 
-	background_rect.x = 0;
-	background_rect.y = 0;
+
+	background_rect.x = -background_rect.width / 2;
+	background_rect.y = -background_rect.height / 2;
+
+	// FIXME: for debug
+	background_rect.x = 0.0;
+	background_rect.y = -background_rect.height;
 
 	svg_open_svg(out_stream, &background_rect);
 
