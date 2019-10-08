@@ -5,6 +5,7 @@
 #if ! defined(_MD_GENERATOR_LOG_H)
 #define _MD_GENERATOR_LOG_H
 
+#include <math.h>
 #include <stdbool.h>
 
 void __attribute__((unused)) __attribute__ ((format (printf, 3, 4)))

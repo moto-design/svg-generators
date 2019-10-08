@@ -18,7 +18,6 @@
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
-#include <math.h>
 #include <string.h>
 #include <time.h>
 
@@ -337,21 +336,9 @@ static int opts_parse(struct opts *opts, int argc, char *argv[])
 	return optind != argc;
 }
 
-static void write_background(FILE* out_stream,
-	const struct svg_rect *background_rect, const char *fill_color)
-{
-	assert(is_hex_color(fill_color));
-
-	svg_open_group(out_stream, "background");
-	svg_write_rect(out_stream, "background", fill_color, NULL, 0,
-		background_rect);
-	svg_close_group(out_stream);
-}
-
 struct block_params {
 	char id[256];
-	struct fill fill;
-	struct stroke stroke;
+	struct svg_style style;
 	struct point_c bottom_left;
 	struct point_c top_left;
 	struct point_c top_right;
@@ -395,7 +382,7 @@ static void write_block(FILE* out_stream, const struct block_params *block)
 	debug(" TL %f,%f\n", block->top_left.x, block->top_left.y);
 	debug(" TR %f,%f\n", block->top_right.x, block->top_right.y);
 
-	svg_open_path(out_stream, block->id, block->fill.color, block->stroke.color, block->stroke.width);
+	svg_open_path(out_stream, block->id, &block->style);
 	fprintf(out_stream, "   d=\"M %f,%f\n", block->bottom_left.x, block->bottom_left.y);
 	fprintf(out_stream, "    L %f,%f\n", block->top_left.x, block->top_left.y);
 	fprintf(out_stream, "    L %f,%f\n", block->top_right.x, block->top_right.y);
@@ -446,9 +433,8 @@ static struct block_params* fill_block_array(
 
 		snprintf(block_array[i].id, sizeof(block_array[i].id),
 			"block_%d", i);
-		//strcpy(block_array[i].fill.color, "#000099");
-		fill_set(&block_array[i].fill, "#deff00");
-		stroke_set(&block_array[i].stroke, NULL, 0);
+
+		block_array[i].style = svg_style_gray_no_stroke;
 
 		block_array[i].bottom_left = next_point(
 			&block_array[i - 1].bottom_right, gap_width,
@@ -537,7 +523,8 @@ static void write_svg(FILE* out_stream,
 	svg_open_svg(out_stream, &background_rect);
 
 	if (0 && background) {
-		write_background(out_stream, &background_rect, "#eeeeee");
+		svg_write_background(out_stream, &svg_style_light_gray_no_stroke,
+			&background_rect);
 	}
 
 	svg_open_group(out_stream, "hannah_stripes");

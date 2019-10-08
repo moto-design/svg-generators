@@ -13,8 +13,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <math.h>
-#include <stdio.h>
+//#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "log.h"
@@ -143,53 +143,6 @@ float random_float(float min, float max)
     return min + (float)rand() / (float)RAND_MAX * (max - min);
 }
 
-void hex_color_set_value(char *color, const char *value)
-{
-	debug("value = '%s'\n", value);
-	assert(color);
-
-	if (value && !is_hex_color(value) ) {
-		fprintf(stderr, "Bad hex color value: '%s'\n", value);
-		assert(0);
-		exit(EXIT_FAILURE);
-	}
-
-	memcpy(color, value, hex_color_len);
-}
-
-void palette_fill(struct palette *palette, const struct color_data *data,
-	unsigned int data_len)
-{
-	unsigned int i;
-	unsigned int out;
-
-	if (palette->colors) {
-		mem_free(palette->colors);
-		palette->colors = NULL;
-	}
-	
-	for (i = 0, palette->color_count = 0; i < data_len; i++) {
-		palette->color_count += data[i].weight;
-	}
-
-	palette->colors =  mem_alloc(palette->color_count * hex_color_len);
-
-	for (i = 0, out = 0; i < data_len; i++) {
-		unsigned int j;
-		for (j = 0; j < data[i].weight; j++, out++) {
-			debug("Add %s\n", data[i].value);
-			memcpy(&palette->colors[out], data[i].value,
-				hex_color_len);
-		}
-		
-	}
-}
-
-const char *palette_get_random(const struct palette *palette)
-{
-	return palette->colors[random_unsigned(0, palette->color_count - 1)];
-}
-
 unsigned int *random_array(unsigned int len)
 {
 	unsigned int *p;
@@ -212,36 +165,4 @@ unsigned int *random_array(unsigned int len)
 	}
 
 	return p;
-}
-
-bool is_hex_color(const char *str)
-{
-	assert(str);
-
-	return (*str == '#'
-		&& *(str + 1) && isxdigit(*(str + 1))
-		&& *(str + 2) && isxdigit(*(str + 2))
-		&& *(str + 3) && isxdigit(*(str + 3))
-		&& *(str + 4) && isxdigit(*(str + 4))
-		&& *(str + 5) && isxdigit(*(str + 5))
-		&& *(str + 6) && isxdigit(*(str + 6))
-		&& *(str + 7) == 0);
-}
-
-struct stroke *stroke_set(struct stroke *stroke, const char *color,
-	unsigned int width)
-{
-	debug("color = '%s', width = %u\n", color, width);
-
-	stroke->width = width;
-	hex_color_set_value(stroke->color, color);
-	return stroke;
-}
-
-struct fill *fill_set(struct fill *fill, const char *color)
-{
-	debug("color = '%s'\n", color);
-
-	hex_color_set_value(fill->color, color);
-	return fill;
 }

@@ -18,7 +18,6 @@
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
-#include <math.h>
 #include <string.h>
 #include <time.h>
 
@@ -326,8 +325,9 @@ struct grid_position {
 	unsigned int number;
 };
 
-static void write_blob(FILE* out_stream, const struct grid_params *grid_params,
-	const struct blob_params *blob_params, const char *color,
+static void write_blob(FILE* out_stream, const struct svg_style *style,
+	const struct grid_params *grid_params,
+	const struct blob_params *blob_params,
 	const struct grid_position *pos)
 {
 	char blob_id[256];
@@ -349,7 +349,7 @@ static void write_blob(FILE* out_stream, const struct grid_params *grid_params,
 		blob_id, node_count, pos->column, pos->row,
 		blob_offset.x, blob_offset.y);
 
-	svg_open_path(out_stream, blob_id, color, NULL, 0);
+	svg_open_path(out_stream, blob_id, style);
 
 	for (node = 0, point_p.t = 0; node < node_count; node++) {
 		struct point_c point_c;
@@ -395,24 +395,14 @@ static void write_blob(FILE* out_stream, const struct grid_params *grid_params,
 	svg_close_object(out_stream);
 }
 
-static void write_background(FILE* out_stream,
-	const struct svg_rect *background_rect, const char *fill_color)
-{
-	assert(is_hex_color(fill_color));
-
-	svg_open_group(out_stream, "background");
-	svg_write_rect(out_stream, "background", fill_color, NULL, 0,
-		background_rect);
-	svg_close_group(out_stream);
-}
-
 static void write_svg(FILE* out_stream, const struct grid_params *grid_params,
 	const struct blob_params *blob_params, const struct palette *palette,
 	bool background)
 {
 	unsigned int i;
-	unsigned int *render_order;
+	struct svg_style style;
 	struct grid_position pos;
+	unsigned int *render_order;
 	struct svg_rect background_rect;
 
 	background_rect.width = (2 + grid_params->columns) * grid_params->width;
@@ -425,22 +415,24 @@ static void write_svg(FILE* out_stream, const struct grid_params *grid_params,
 	svg_open_svg(out_stream, &background_rect);
 
 	if (background) {
-		//write_background(out_stream, &background_rect, "#001aff");
-		write_background(out_stream, &background_rect, "#000099");
+		svg_write_background(out_stream, &svg_style_royal_no_stroke,
+			&background_rect);
 	}
 
 	svg_open_group(out_stream, "camo_blobs");
 
 	render_order = random_array(grid_params->columns * grid_params->rows);
+	svg_stroke_set(&style.stroke,  NULL, 0);
 
 	for (i = 0; i < grid_params->columns * grid_params->rows; i++) {
 		pos.number = i;
 		pos.row = render_order[i] / grid_params->columns;
 		pos.column = render_order[i] % grid_params->columns;
-		const char *color = palette_get_random(palette);
+		
+		svg_fill_set(&style.fill, palette_get_random(palette));
 
 		//debug("%u: (%u) = %u, %u\n", i, render_order[i], pos.column, pos.row);
-		write_blob(out_stream, grid_params, blob_params, color, &pos);
+		write_blob(out_stream, &style, grid_params, blob_params, &pos);
 	}
 
 	svg_close_group(out_stream);
