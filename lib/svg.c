@@ -9,7 +9,28 @@
 #include "config.h"
 #endif
 
+#include <assert.h>
+
+#include "log.h"
 #include "svg.h"
+
+struct svg_fill *svg_fill_set(struct svg_fill *fill, const char *color)
+{
+	debug("color = '%s'\n", color);
+
+	hex_color_set(fill->color, color);
+	return fill;
+}
+
+struct svg_stroke *svg_stroke_set(struct svg_stroke *stroke, const char *color,
+	unsigned int width)
+{
+	debug("color = '%s', width = %u\n", color, width);
+
+	stroke->width = width;
+	hex_color_set(stroke->color, color);
+	return stroke;
+}
 
 void svg_open_svg(FILE *stream, const struct svg_rect *background_rect)
 {
@@ -42,14 +63,17 @@ void svg_close_group(FILE *stream)
 }
 
 void svg_open_object(FILE *stream, const char *type, const char *id,
-	const char *fill, const char *stroke, unsigned int stroke_width)
+	const struct svg_style *style)
 {
 	fprintf(stream, "  <%s id=\"%s\"\n", type, id);
-	if (fill) {
-		fprintf(stream, "   fill=\"%s\"\n", fill);
+
+	if (style && is_hex_color(style->fill.color)) {
+		fprintf(stream, "   fill=\"%s\"\n", style->fill.color);
 	}
-	if (stroke) {
-		fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n", stroke, stroke_width);
+
+	if (style && is_hex_color(style->stroke.color)) {
+		fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n",
+			style->stroke.color, style->stroke.width);
 	}
 }
 
@@ -58,16 +82,15 @@ void svg_close_object(FILE *stream)
 	fprintf(stream, "  />\n");
 }
 
-void svg_open_path(FILE *stream, const char *id, const char *fill,
-	const char *stroke, unsigned int stroke_width)
+void svg_open_path(FILE *stream, const char *id, const struct svg_style *style)
 {
-	svg_open_object(stream, "path", id, fill, stroke, stroke_width);
+	svg_open_object(stream, "path", id, style);
 }
 
-void svg_open_polygon(FILE *stream, const char *id, const char *fill,
-	const char *stroke, unsigned int stroke_width)
+void svg_open_polygon(FILE *stream, const char *id,
+	const struct svg_style *style)
 {
-	svg_open_object(stream, "polygon", id, fill, stroke, stroke_width);
+	svg_open_object(stream, "polygon", id, style);
 	fprintf(stream, "   points=\"\n");
 }
 
@@ -76,12 +99,22 @@ void svg_close_polygon(FILE *stream)
 	fprintf(stream, "   \"\n");
 }
 
-...
-void svg_write_line(FILE *stream, const char *id, const char *fill,
-	const char *stroke, unsigned int stroke_width,
-	const struct svg_rect *rect)
+void svg_write_line(FILE *stream, const char *id, const struct svg_line *line,
+	const struct svg_style *style)
 {
-	svg_open_object(stream, "rect", id, fill, stroke, stroke_width);
+	svg_open_object(stream, "line", id, style);
+//x1="0" y1="0" x2="200" y2="200"
+	fprintf(stream,
+		"   x1=\"%f\" y1=\"%f\"\n  x2=\"%f\" y2=\"%f\"\n",
+		line->a.x, line->a.y, line->b.x, line->b.y);
+
+	svg_close_object(stream);
+}
+
+void svg_write_rect(FILE *stream, const char *id, const struct svg_rect *rect,
+	const struct svg_style *style)
+{
+	svg_open_object(stream, "rect", id, style);
 
 	fprintf(stream,
 		"   width=\"%f\"\n   height=\"%f\"\n   x=\"%f\"\n   y=\"%f\"\n   rx=\"%f\"\n",
@@ -90,16 +123,12 @@ void svg_write_line(FILE *stream, const char *id, const char *fill,
 	svg_close_object(stream);
 }
 
-void svg_write_rect(FILE *stream, const char *id, const char *fill,
-	const char *stroke, unsigned int stroke_width,
-	const struct svg_rect *rect)
+void svg_write_background(FILE* out_stream, const struct svg_style *style,
+	const struct svg_rect *background_rect)
 {
-	svg_open_object(stream, "rect", id, fill, stroke, stroke_width);
+	assert(is_hex_color(style->fill.color));
 
-	fprintf(stream,
-		"   width=\"%f\"\n   height=\"%f\"\n   x=\"%f\"\n   y=\"%f\"\n   rx=\"%f\"\n",
-		rect->width, rect->height, rect->x, rect->y, rect->rx);
-
-	svg_close_object(stream);
+	svg_open_group(out_stream, "background");
+	svg_write_rect(out_stream, "background", background_rect, style);
+	svg_close_group(out_stream);
 }
-

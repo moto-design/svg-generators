@@ -18,7 +18,6 @@
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
-#include <math.h>
 #include <string.h>
 #include <time.h>
 
@@ -202,15 +201,13 @@ static int opts_parse(struct opts *opts, int argc, char *argv[])
 
 static void write_star(FILE* out_stream, const struct star_params *star_params)
 {
-	static const struct stroke stroke = {.color = "#0000ff", .width = 3};
-	static const struct fill fill = {.color = "#ffdd00"};
 	struct node_buffer nb;
 	unsigned int node;
 	char star_id[256];
 
 	snprintf(star_id, sizeof(star_id), "start_%d", star_params->points);
 
-	svg_open_polygon(out_stream, star_id, fill.color, stroke.color, stroke.width);
+	svg_open_polygon(out_stream, star_id, &svg_style_yellow_blue);
 
 	polygon_star_setup(star_params, &nb);
 

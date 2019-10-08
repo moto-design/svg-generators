@@ -5,7 +5,7 @@
 #if ! defined(_MD_GENERATOR_GEOMETRY_H)
 #define _MD_GENERATOR_GEOMETRY_H
 
-#include <math.h>
+#include "log.h"
 
 static inline float deg_to_rad(float deg)
 {
