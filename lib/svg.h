@@ -60,6 +60,13 @@ static const struct svg_style svg_style_gray_no_stroke = {
 	.stroke.dasharray = NULL,
 };
 
+static const struct svg_style svg_style_red_red = {
+	.fill.color = _hex_color_red,
+	.stroke.color = _hex_color_red,
+	.stroke.width = 1,
+	.stroke.dasharray = NULL,
+};
+
 static const struct svg_style svg_style_yellow_blue = {
 	.fill.color = _hex_color_yellow,
 	.stroke.color = _hex_color_blue,

@@ -53,10 +53,10 @@ static const struct star_params init_star_params = {
 };
 
 static const struct star_params default_star_params = {
-	.points = 7,
-	.density = 3,
-	.radius = 100,
-	.rotation = 0.0,
+	.points = 5,
+	.density = 2,
+	.radius = 307.6923075,
+	.rotation = -90.0,
 };
 
 static void print_usage(const struct opts *opts)
@@ -205,11 +205,12 @@ static void write_star(FILE* out_stream, const struct star_params *star_params)
 	unsigned int node;
 	char star_id[256];
 
-	snprintf(star_id, sizeof(star_id), "start_%d", star_params->points);
-
-	svg_open_polygon(out_stream, star_id, &svg_style_yellow_blue);
+	snprintf(star_id, sizeof(star_id), "star_%d_%d", star_params->points,
+		star_params->density);
 
 	polygon_star_setup(star_params, &nb);
+
+	svg_open_polygon(out_stream, star_id, &svg_style_yellow_blue);
 
 	for (node = 0; node < nb.node_count; node++) {
 
@@ -240,6 +241,7 @@ static void write_svg(FILE* out_stream, const struct star_params *star_params)
 	background_rect.y = -background_rect.height;
 
 	svg_open_svg(out_stream, &background_rect);
+	//debug_svg_stream = out_stream;
 
 	write_star(out_stream, star_params);
 

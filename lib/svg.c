@@ -91,6 +91,7 @@ void svg_open_polygon(FILE *stream, const char *id,
 	const struct svg_style *style)
 {
 	svg_open_object(stream, "polygon", id, style);
+	fprintf(stream, "   transform=\"translate(0,0)\"\n");
 	fprintf(stream, "   points=\"\n");
 }
 

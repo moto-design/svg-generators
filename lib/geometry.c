@@ -18,6 +18,9 @@
 #include "geometry.h"
 #include "log.h"
 #include "mem.h"
+#include "svg.h"
+
+FILE *debug_svg_stream;
 
 struct point_c *polar_to_cart(const struct point_p *p, struct point_c *c)
 {
@@ -86,6 +89,15 @@ void debug_print_line(const char *msg, const struct line_c *line)
 	debug("%sb         = {%f, %f}\n", msg, line->b.x, line->b.y);
 	debug("%sslope     = %f deg\n", msg, rad_to_deg(line->slope));
 	debug("%sintercept = %f\n", msg, line->intercept);
+
+	if (debug_svg_stream) {
+		struct svg_line sl;
+
+		sl.a = line->a;
+		sl.b = line->b;
+		svg_write_line(debug_svg_stream, msg, &sl,
+			&svg_style_red_red);
+	}
 }
 
 struct point_c line_intersection(const struct line_c *line1,
@@ -106,11 +118,18 @@ struct point_c line_intersection(const struct line_c *line1,
 		exit(EXIT_FAILURE);
 	}
 
-	i.x = (line2->intercept - line1->intercept) / (s_diff);
-	i.y = line1->slope * i.x + line1->intercept;
-	
-	debug_print_cart("intersection ", &i);
+	if (!isfinite(line1->slope)) {
+		i.x = line1->a.x;
+		i.y = line2->slope * i.x + line2->intercept;
+	} else if (!isfinite(line2->slope)) {
+		i.x = line2->a.x;
+		i.y = line1->slope * i.x + line1->intercept;
+	} else {
+		i.x = (line2->intercept - line1->intercept) / (s_diff);
+		i.y = line1->slope * i.x + line1->intercept;
+	}
 
+	debug_print_cart("intersection ", &i);
 	return i;
 }
 
@@ -143,7 +162,7 @@ void polygon_star_init(const struct star_params *star_params,
 	p.t = 2.0 * ps->sector_angle;
 	polar_to_cart(&p, &seg2.a);
 
-	p.t += 2.0 * ps->sector_angle * star_params->density;
+	p.t -= 2.0 * ps->sector_angle * star_params->density;
 	polar_to_cart(&p, &seg2.b);
 
 	seg2.slope = line_slope(&seg2);
