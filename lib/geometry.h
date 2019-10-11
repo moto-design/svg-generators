@@ -5,7 +5,11 @@
 #if ! defined(_MD_GENERATOR_GEOMETRY_H)
 #define _MD_GENERATOR_GEOMETRY_H
 
+#include <stdio.h>
+
 #include "log.h"
+
+extern FILE *debug_svg_stream;
 
 static inline float deg_to_rad(float deg)
 {
