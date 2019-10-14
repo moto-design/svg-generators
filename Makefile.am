@@ -22,11 +22,15 @@ maintainer-clean-local:
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-bin_PROGRAMS = blob-generator star-generator stripe-generator
+bin_PROGRAMS = blob-generator flag-generator star-generator stripe-generator
 
 blob_generator_DEPENDENCIES = Makefile $(svg_lib)
 blob_generator_SOURCES = blob-generator.c
 blob_generator_LDADD = $(svg_lib)
+
+flag_generator_DEPENDENCIES = Makefile $(svg_lib)
+flag_generator_SOURCES = flag-generator.c
+flag_generator_LDADD = $(svg_lib)
 
 star_generator_DEPENDENCIES = Makefile $(svg_lib)
 star_generator_SOURCES = star-generator.c
