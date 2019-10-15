@@ -16,19 +16,30 @@
 
 struct svg_fill *svg_fill_set(struct svg_fill *fill, const char *color)
 {
+	assert(fill);
 	debug("color = '%s'\n", color);
 
-	hex_color_set(fill->color, color);
+	if (color) {
+		hex_color_set(fill->color, color);
+	} else {
+		fill->color[0] = 0;
+	}
 	return fill;
 }
 
 struct svg_stroke *svg_stroke_set(struct svg_stroke *stroke, const char *color,
 	unsigned int width)
 {
+	assert(stroke);
 	debug("color = '%s', width = %u\n", color, width);
 
-	stroke->width = width;
-	hex_color_set(stroke->color, color);
+	if (color) {
+		stroke->width = width;
+		hex_color_set(stroke->color, color);
+	} else {
+		stroke->width = 0;
+		stroke->color[0] = 0;
+	}
 	return stroke;
 }
 
