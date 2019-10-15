@@ -163,6 +163,24 @@ struct flag_dimensions {
 	float star_diameter;
 };
 
+struct flag_colors {
+	char red[hex_color_len];
+	char white[hex_color_len];
+	char blue[hex_color_len];
+};
+
+__attribute__((unused)) static const struct flag_colors flag_colors_full = {
+	.red = "#b22234",
+	.white = "#ffffff",
+	.blue = "#3c3b6e",
+};
+
+__attribute__((unused)) static const struct flag_colors flag_colors_od = {
+	.red = "#706b5c",
+	.white = "#d9d9d9",
+	.blue = "#585850",
+};
+
 static void flag_dimensions_fill(struct flag_dimensions *fd, float height)
 {
 	fd->height = height;
@@ -196,29 +214,61 @@ static void write_flag(FILE* out_stream, float height)
 	debug("stripe_width = %f\n", fd.stripe_width);
 	debug("star_diameter = %f\n", fd.star_diameter);
 
+	// white_background
+	svg_style_set(&style, flag_colors_full.white, NULL, 0);
 	sr.width = fd.width;
 	sr.height = fd.height;
-	sr.x = 0;
-	sr.y = 0;
-	sr.rx = 0;
-	sr.ry = 0;
-	svg_write_rect(out_stream, "white_background", &sr, &svg_style_light_gray_no_stroke);
+	sr.x = 0.0;
+	sr.y = 0.0;
+	sr.rx = 0.0;
+	sr.ry = 0.0;
+	svg_write_rect(out_stream, "white_background", &sr, &style);
 
+	// red_stripes
+	// TODO: Convert to single path.
+	svg_style_set(&style, NULL, flag_colors_full.red, fd.stripe_width);
+	sl.a.x = 0.0;
+	sl.b.x = fd.width;
+	sl.a.y = sl.b.y = fd.stripe_width / 2.0;
+	for (i = 0; i < 7; i++) {
+		svg_write_line(out_stream, "red_stripes", &sl, &style);
+		sl.a.y = sl.b.y += 2.0 * fd.stripe_width;
+	}
+
+	// blue_background
+	svg_style_set(&style, flag_colors_full.blue, NULL, 0);
 	sr.width = fd.blue_width;
 	sr.height = fd.blue_height;
-	svg_write_rect(out_stream, "blue_background", &sr, &svg_style_royal_no_stroke);
+	svg_write_rect(out_stream, "blue_background", &sr, &style);
 
+	if (log_get_verbose()) {
+		// v_grid
+		style = svg_style_light_green_light_green;
+		style.stroke.width = 1.0 + fd.height / 1000.0;
 
-	sl.a.x = 0;
-	sl.b.x = fd.blue_width;
-	style = svg_style_light_green_light_green;
-	style.stroke.width = 20;
+		sl.a.x = 0.0;
+		sl.b.x = fd.blue_width;
+		sl.a.y = sl.b.y = 0.0;
+		for (i = 0; i < 11; i++) {
+			svg_write_line(out_stream, "v_grid", &sl, &style);
+			sl.a.y = sl.b.y += fd.star_v_grid;
+		}
 
-	sl.a.y = sl.b.y = 0;
-	for (i = 0; i < 10; i++) {
-		sl.a.y = sl.b.y += fd.star_v_grid;
-		svg_write_line(out_stream, "v_grid", &sl, &style);
+		// h_grid
+		style = svg_style_light_green_light_green;
+		style.stroke.width = 1.0 + fd.height / 1000.0;
+
+		sl.a.y = 0.0;
+		sl.b.y = fd.blue_height;
+		sl.a.x = sl.b.x = 0.0;
+		for (i = 0; i < 13; i++) {
+			svg_write_line(out_stream, "h_grid", &sl, &style);
+			sl.a.x = sl.b.x += fd.star_h_grid;
+		}
 	}
+	
+	// stars
+	// TODO
 }
 
 static void write_svg(FILE* out_stream, float height)
@@ -234,7 +284,7 @@ int main(int argc, char *argv[])
 	struct opts opts;
 	FILE *out_stream;
 
-	set_exit_on_error(true);
+	log_set_exit_on_error(true);
 
 	if (opts_parse(&opts, argc, argv)) {
 		print_usage(&opts);
@@ -247,7 +297,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (opts.verbose == opt_yes) {
-		set_verbose(true);
+		log_set_verbose(true);
 	}
 
 	if (!strcmp(opts.output_file, "-")) {

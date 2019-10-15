@@ -16,16 +16,21 @@
 #include "log.h"
 
 static bool exit_on_error = false;
-static bool verbose = false;
+static bool verbose_state = false;
 
-void set_exit_on_error(bool state)
+void log_set_exit_on_error(bool state)
 {
 	exit_on_error = state;
 }
 
-void set_verbose(bool state)
+void log_set_verbose(bool state)
 {
-	verbose = state;
+	verbose_state = state;
+}
+
+bool log_get_verbose(void)
+{
+	return verbose_state;
 }
 
 void  __attribute__((unused)) _error(const char *func, int line,
@@ -53,7 +58,7 @@ void  __attribute__((unused)) _log(const char *func, int line,
 {
 	va_list ap;
 	
-	if (!verbose) {
+	if (!verbose_state) {
 		return;
 	}
 

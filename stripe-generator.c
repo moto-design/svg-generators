@@ -621,7 +621,7 @@ int main(int argc, char *argv[])
 	struct opts opts;
 	FILE *out_stream;
 
-	set_exit_on_error(true);
+	log_set_exit_on_error(true);
 
 	if (opts_parse(&opts, argc, argv)) {
 		print_usage(&opts);
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (opts.verbose == opt_yes) {
-		set_verbose(true);
+		log_set_verbose(true);
 	}
 
 	if (opts.config_file){

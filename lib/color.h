@@ -9,6 +9,8 @@
 
 #define hex_color_len sizeof("#000000")
 
+#define _hex_color_null        ""
+
 #define _hex_color_white       "#ffffff"
 #define _hex_color_light_gray  "#eeeeee"
 #define _hex_color_silver      "#c0c0c0"
