@@ -21,6 +21,8 @@
 
 #define _hex_color_red         "#ff0000"
 #define _hex_color_yellow      "#ffdd00"
+#define _hex_color_light_green "#1aff70"
+
 
 static const char hc_white[hex_color_len]       = _hex_color_white;
 static const char hc_light_gray[hex_color_len]  = _hex_color_light_gray;
@@ -34,6 +36,7 @@ static const char hc_royal[hex_color_len]       = _hex_color_royal;
 
 static const char hc_red[hex_color_len]         = _hex_color_red;
 static const char hc_yellow[hex_color_len]      = _hex_color_yellow;
+static const char hc_light_green[hex_color_len] = _hex_color_light_green;
 
 struct color_data
 {

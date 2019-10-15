@@ -74,6 +74,20 @@ static const struct svg_style svg_style_yellow_blue = {
 	.stroke.dasharray = NULL,
 };
 
+static const struct svg_style svg_style_black_black = {
+	.fill.color = _hex_color_black,
+	.stroke.color = _hex_color_black,
+	.stroke.width = 1,
+	.stroke.dasharray = NULL,
+};
+
+static const struct svg_style svg_style_light_green_light_green = {
+	.fill.color = _hex_color_light_green,
+	.stroke.color = _hex_color_light_green,
+	.stroke.width = 1,
+	.stroke.dasharray = NULL,
+};
+
 struct svg_fill *svg_fill_set(struct svg_fill *fill, const char *color);
 struct svg_stroke *svg_stroke_set(struct svg_stroke *stroke, const char *color,
 	unsigned int width);
