@@ -38,14 +38,13 @@ void hex_color_set(char *color, const char *value)
 {
 	assert(color);
 	assert(value);
+	//debug("value = '%s'\n", value);
 
 	if (!value || !is_hex_color(value)) {
 		fprintf(stderr, "Bad hex color value: '%s'\n", value);
 		assert(0);
 		exit(EXIT_FAILURE);
 	}
-
-	debug("value = '%s'\n", value);
 
 	color[0] = value[0];
 	color[1] = value[1];
@@ -55,6 +54,21 @@ void hex_color_set(char *color, const char *value)
 	color[5] = value[5];
 	color[6] = value[6];
 	color[7] = 0;
+}
+void hex_color_clear(char *color)
+{
+	assert(color);
+
+	color[0] = 0;
+#if defined(DEBUG)
+	color[1] = 0;
+	color[2] = 0;
+	color[3] = 0;
+	color[4] = 0;
+	color[5] = 0;
+	color[6] = 0;
+	color[7] = 0;
+#endif
 }
 
 void palette_fill(struct palette *palette, const struct color_data *data,

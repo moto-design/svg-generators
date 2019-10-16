@@ -54,6 +54,7 @@ struct palette
 
 bool is_hex_color(const char *p);
 void hex_color_set(char *color, const char *value);
+void hex_color_clear(char *color);
 
 void palette_parse_config(const char *config_file, struct palette *palette);
 void palette_fill(struct palette *palette, const struct color_data *data,
