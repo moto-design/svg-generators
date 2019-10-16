@@ -349,7 +349,7 @@ static void write_blob(FILE* out_stream, const struct svg_style *style,
 		blob_id, node_count, pos->column, pos->row,
 		blob_offset.x, blob_offset.y);
 
-	svg_open_path(out_stream, blob_id, style);
+	svg_open_path(out_stream, style, blob_id);
 
 	for (node = 0, point_p.t = 0; node < node_count; node++) {
 		struct point_c point_c;

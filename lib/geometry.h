@@ -93,6 +93,7 @@ struct star_params {
 	unsigned int density;
 	float radius;
 	float rotation;
+	struct point_c position;
 };
 
 struct polygon_star {

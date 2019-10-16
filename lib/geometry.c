@@ -95,8 +95,7 @@ void debug_print_line(const char *msg, const struct line_c *line)
 
 		sl.a = line->a;
 		sl.b = line->b;
-		svg_write_line(debug_svg_stream, msg, &sl,
-			&svg_style_red_red);
+		svg_write_line(debug_svg_stream, &svg_style_red_red, msg, &sl);
 	}
 }
 

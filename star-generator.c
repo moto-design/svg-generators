@@ -199,39 +199,16 @@ static int opts_parse(struct opts *opts, int argc, char *argv[])
 	return optind != argc;
 }
 
-static void write_star(FILE* out_stream, const struct star_params *star_params)
+static void write_svg(FILE* out_stream, const struct star_params *star_params)
 {
-	struct node_buffer nb;
-	unsigned int node;
+	struct svg_rect background_rect;
 	char star_id[256];
 
 	snprintf(star_id, sizeof(star_id), "star_%d_%d", star_params->points,
 		star_params->density);
 
-	polygon_star_setup(star_params, &nb);
-
-	svg_open_polygon(out_stream, star_id, &svg_style_yellow_blue);
-
-	for (node = 0; node < nb.node_count; node++) {
-
-		fprintf(out_stream, "     %f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
-		//debug("node_%u: cart = {%f, %f}\n", node, nb.nodes[node].x,
-		//	nb.nodes[node].y);
-	}
-
-	svg_close_polygon(out_stream);
-	svg_close_object(out_stream);
-
-	node_buffer_clean(&nb);
-}
-
-static void write_svg(FILE* out_stream, const struct star_params *star_params)
-{
-	struct svg_rect background_rect;
-
 	background_rect.width = 2.6 * star_params->radius;
 	background_rect.height = background_rect.width;
-
 
 	background_rect.x = -background_rect.width / 2;
 	background_rect.y = -background_rect.height / 2;
@@ -243,7 +220,7 @@ static void write_svg(FILE* out_stream, const struct star_params *star_params)
 	svg_open_svg(out_stream, &background_rect);
 	//debug_svg_stream = out_stream;
 
-	write_star(out_stream, star_params);
+	svg_write_star(out_stream, &svg_style_yellow_blue, star_id, star_params);
 
 	svg_close_svg(out_stream);
 }
