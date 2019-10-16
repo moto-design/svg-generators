@@ -78,8 +78,9 @@ void svg_close_group(FILE *stream)
 	fprintf(stream, " </g>\n");
 }
 
-void svg_open_object(FILE *stream, const char *type, const char *id,
-	const struct svg_style *style)
+
+void svg_open_object(FILE *stream, const struct svg_style *style,
+	const char *id, const char *type)
 {
 	fprintf(stream, "  <%s id=\"%s\"\n", type, id);
 
@@ -98,15 +99,15 @@ void svg_close_object(FILE *stream)
 	fprintf(stream, "  />\n");
 }
 
-void svg_open_path(FILE *stream, const char *id, const struct svg_style *style)
+void svg_open_path(FILE *stream, const struct svg_style *style, const char *id)
 {
-	svg_open_object(stream, "path", id, style);
+	svg_open_object(stream, style, id, "path");
 }
 
-void svg_open_polygon(FILE *stream, const char *id,
-	const struct svg_style *style)
+void svg_open_polygon(FILE *stream, const struct svg_style *style,
+	const char *id, const struct point_c *position)
 {
-	svg_open_object(stream, "polygon", id, style);
+	svg_open_object(stream, style, id, "polygon");
 	fprintf(stream, "   transform=\"translate(0,0)\"\n");
 	fprintf(stream, "   points=\"\n");
 }
@@ -116,10 +117,10 @@ void svg_close_polygon(FILE *stream)
 	fprintf(stream, "   \"\n");
 }
 
-void svg_write_line(FILE *stream, const char *id, const struct svg_line *line,
-	const struct svg_style *style)
+void svg_write_line(FILE *stream, const struct svg_style *style, const char *id,
+	const struct svg_line *line)
 {
-	svg_open_object(stream, "line", id, style);
+	svg_open_object(stream, style, id, "line");
 //x1="0" y1="0" x2="200" y2="200"
 	fprintf(stream,
 		"   x1=\"%f\" y1=\"%f\"\n  x2=\"%f\" y2=\"%f\"\n",
@@ -128,10 +129,10 @@ void svg_write_line(FILE *stream, const char *id, const struct svg_line *line,
 	svg_close_object(stream);
 }
 
-void svg_write_rect(FILE *stream, const char *id, const struct svg_rect *rect,
-	const struct svg_style *style)
+void svg_write_rect(FILE *stream, const struct svg_style *style,
+	const char *id, const struct svg_rect *rect)
 {
-	svg_open_object(stream, "rect", id, style);
+	svg_open_object(stream, style, id, "rect");
 
 	fprintf(stream,
 		"   width=\"%f\"\n   height=\"%f\"\n   x=\"%f\"\n   y=\"%f\"\n   rx=\"%f\"\n",
@@ -146,6 +147,30 @@ void svg_write_background(FILE* out_stream, const struct svg_style *style,
 	assert(is_hex_color(style->fill.color));
 
 	svg_open_group(out_stream, "background");
-	svg_write_rect(out_stream, "background", background_rect, style);
+	svg_write_rect(out_stream, style, "background", background_rect);
 	svg_close_group(out_stream);
 }
+
+void svg_write_star(FILE* out_stream, const struct svg_style *style,
+	const char *id, const struct star_params *star_params)
+{
+	struct node_buffer nb;
+	unsigned int node;
+
+	polygon_star_setup(star_params, &nb);
+
+	svg_open_polygon(out_stream, style, id);
+
+	for (node = 0; node < nb.node_count; node++) {
+
+		fprintf(out_stream, "     %f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
+		//debug("node_%u: cart = {%f, %f}\n", node, nb.nodes[node].x,
+		//	nb.nodes[node].y);
+	}
+
+	svg_close_polygon(out_stream);
+	svg_close_object(out_stream);
+
+	node_buffer_clean(&nb);
+}
+

@@ -382,7 +382,7 @@ static void write_block(FILE* out_stream, const struct block_params *block)
 	debug(" TL %f,%f\n", block->top_left.x, block->top_left.y);
 	debug(" TR %f,%f\n", block->top_right.x, block->top_right.y);
 
-	svg_open_path(out_stream, block->id, &block->style);
+	svg_open_path(out_stream, &block->style, block->id);
 	fprintf(out_stream, "   d=\"M %f,%f\n", block->bottom_left.x, block->bottom_left.y);
 	fprintf(out_stream, "    L %f,%f\n", block->top_left.x, block->top_left.y);
 	fprintf(out_stream, "    L %f,%f\n", block->top_right.x, block->top_right.y);

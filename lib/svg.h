@@ -108,20 +108,27 @@ static inline struct svg_style *svg_style_set(struct svg_style *style, const cha
 
 void svg_open_svg(FILE *stream, const struct svg_rect *background_rect);
 void svg_close_svg(FILE *stream);
+
 void svg_open_group(FILE *stream, const char *id);
 void svg_close_group(FILE *stream);
-void svg_open_object(FILE *stream, const char *type, const char *id,
-	const struct svg_style *style);
+
+void svg_open_object(FILE *stream, const struct svg_style *style,
+	const char *id, const char *type);
 void svg_close_object(FILE *stream);
-void svg_open_path(FILE *stream, const char *id, const struct svg_style *style);
-void svg_open_polygon(FILE *stream, const char *id,
-	const struct svg_style *style);
+
+void svg_open_path(FILE *stream, const struct svg_style *style, const char *id);
+
+void svg_open_polygon(FILE *stream, const struct svg_style *style,
+	const char *id);
 void svg_close_polygon(FILE *stream);
-void svg_write_line(FILE *stream, const char *id, const struct svg_line *line,
-	const struct svg_style *style);
-void svg_write_rect(FILE *stream, const char *id, const struct svg_rect *rect,
-	const struct svg_style *style);
+
+void svg_write_line(FILE *stream, const struct svg_style *style, const char *id,
+	const struct svg_line *line);
+void svg_write_rect(FILE *stream, const struct svg_style *style,
+	const char *id, const struct svg_rect *rect);
 void svg_write_background(FILE* out_stream, const struct svg_style *style,
 	const struct svg_rect *background_rect);
+void svg_write_star(FILE* out_stream, const struct svg_style *style,
+	const char *id, const struct star_params *star_params);
 
 #endif /* _MD_GENERATOR_SVG_H */
