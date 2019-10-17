@@ -218,10 +218,9 @@ static void write_svg(FILE* out_stream, const struct star_params *star_params)
 	background_rect.y = -background_rect.height;
 
 	svg_open_svg(out_stream, &background_rect);
-	//debug_svg_stream = out_stream;
-
-	svg_write_star(out_stream, &svg_style_yellow_blue, star_id, star_params);
-
+	//svg_debug_stream_set(out_stream);
+	svg_write_star(out_stream, &svg_style_yellow_blue, NULL, star_id,
+		star_params);
 	svg_close_svg(out_stream);
 }
 

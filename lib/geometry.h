@@ -9,18 +9,6 @@
 
 #include "log.h"
 
-extern FILE *debug_svg_stream;
-
-static inline float deg_to_rad(float deg)
-{
-	return deg * M_PI / 180.0;
-}
-
-static inline float rad_to_deg(float rad)
-{
-	return rad * 180.0 / M_PI;
-}
-
 struct point_c {
 	float x;
 	float y;
@@ -35,6 +23,31 @@ struct point_pc {
 	struct point_p p;
 	struct point_c c;
 };
+
+static const struct point_c null_point_c = {HUGE_VALF, HUGE_VALF};
+static const struct point_c null_point_p = {HUGE_VALF, HUGE_VALF};
+static const struct point_pc point_pc = {{HUGE_VALF, HUGE_VALF},
+	{HUGE_VALF, HUGE_VALF}};
+
+struct scale {
+	float x;
+	float y;
+};
+
+struct rotation {
+	float angle;
+	struct point_c p;
+};
+
+static inline float deg_to_rad(float deg)
+{
+	return deg * M_PI / 180.0;
+}
+
+static inline float rad_to_deg(float rad)
+{
+	return rad * 180.0 / M_PI;
+}
 
 struct point_c *polar_to_cart(const struct point_p *p, struct point_c *c);
 struct point_p *cart_to_polar(const struct point_c *c, struct point_p *p);

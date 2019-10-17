@@ -25,6 +25,18 @@ struct svg_style {
 	struct svg_stroke stroke;
 };
 
+struct svg_transform {
+	struct point_c translate;
+	struct scale scale;
+	struct rotation rotation;
+};
+
+static const struct svg_transform null_svg_transform = {
+	.translate = {HUGE_VALF, HUGE_VALF},
+	.scale = {HUGE_VALF, HUGE_VALF},
+	.rotation = {0.0, {HUGE_VALF, HUGE_VALF}},
+};
+
 struct svg_line {
 	struct point_c a;
 	struct point_c b;
@@ -95,6 +107,9 @@ static const struct svg_style svg_style_white_white = {
 	.stroke.dasharray = NULL,
 };
 
+FILE *svg_debug_stream(void);
+void svg_debug_stream_set(FILE *stream);
+
 struct svg_fill *svg_fill_set(struct svg_fill *fill, const char *color);
 struct svg_stroke *svg_stroke_set(struct svg_stroke *stroke, const char *color,
 	unsigned int width);
@@ -109,26 +124,32 @@ static inline struct svg_style *svg_style_set(struct svg_style *style, const cha
 void svg_open_svg(FILE *stream, const struct svg_rect *background_rect);
 void svg_close_svg(FILE *stream);
 
-void svg_open_group(FILE *stream, const char *id);
+void svg_open_group(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id);
 void svg_close_group(FILE *stream);
 
 void svg_open_object(FILE *stream, const struct svg_style *style,
-	const char *id, const char *type);
+	const struct svg_transform *transform, const char *id, const char *type);
 void svg_close_object(FILE *stream);
 
-void svg_open_path(FILE *stream, const struct svg_style *style, const char *id);
+void svg_open_path(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id);
 
 void svg_open_polygon(FILE *stream, const struct svg_style *style,
-	const char *id);
+	const struct svg_transform *transform, const char *id);
 void svg_close_polygon(FILE *stream);
 
-void svg_write_line(FILE *stream, const struct svg_style *style, const char *id,
+void svg_write_line(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id,
 	const struct svg_line *line);
 void svg_write_rect(FILE *stream, const struct svg_style *style,
-	const char *id, const struct svg_rect *rect);
-void svg_write_background(FILE* out_stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id,
+	const struct svg_rect *rect);
+void svg_write_background(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform,
 	const struct svg_rect *background_rect);
-void svg_write_star(FILE* out_stream, const struct svg_style *style,
-	const char *id, const struct star_params *star_params);
+void svg_write_star(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id,
+	const struct star_params *star_params);
 
 #endif /* _MD_GENERATOR_SVG_H */

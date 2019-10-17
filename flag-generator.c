@@ -193,11 +193,31 @@ static void flag_dimensions_fill(struct flag_dimensions *fd, float height)
 	fd->star_diameter = fd->stripe_width * 4.0 / 5.0;
 }
 
+static void write_stars(FILE* out_stream, struct flag_dimensions *fd)
+{
+	struct star_params star_params;
+	struct svg_style style;
+	struct svg_transform tform;
+
+	star_params.points = 5;
+	star_params.density = 2;
+	star_params.radius = fd->star_diameter / 2.0;
+	star_params.rotation = -90.0;
+
+	//svg_style_set(&style, flag_colors_full.white, NULL, 0);
+	svg_style_set(&style, _hex_color_yellow, NULL, 0);
+
+	tform = null_svg_transform;
+	tform.translate.x = fd->star_h_grid;
+	tform.translate.y = fd->star_v_grid;
+
+	svg_write_star(out_stream, &style, &tform, "star_1", &star_params);
+}
+
 static void write_flag(FILE* out_stream, float height)
 {
 	struct flag_dimensions fd;
 	static const char flag_id[] = "flag_usa_1";
-	struct star_params star_params;
 	struct svg_style style;
 	struct svg_line sl;
 	struct svg_rect sr;
@@ -224,7 +244,7 @@ static void write_flag(FILE* out_stream, float height)
 	sr.y = 0.0;
 	sr.rx = 0.0;
 	sr.ry = 0.0;
-	svg_write_rect(out_stream, &style, "white_background", &sr);
+	svg_write_rect(out_stream, &style, NULL, "white_background", &sr);
 
 	// red_stripes
 	// TODO: Convert to single path.
@@ -234,7 +254,7 @@ static void write_flag(FILE* out_stream, float height)
 	sl.b.x = fd.width;
 	sl.a.y = sl.b.y = fd.stripe_width / 2.0;
 	for (i = 0; i < 7; i++) {
-		svg_write_line(out_stream, &style, "red_stripes", &sl);
+		svg_write_line(out_stream, &style, NULL, "red_stripes", &sl);
 		sl.a.y = sl.b.y += 2.0 * fd.stripe_width;
 	}
 
@@ -243,7 +263,7 @@ static void write_flag(FILE* out_stream, float height)
 
 	sr.width = fd.blue_width;
 	sr.height = fd.blue_height;
-	svg_write_rect(out_stream, &style, "blue_background", &sr);
+	svg_write_rect(out_stream, &style, NULL, "blue_background", &sr);
 
 	if (log_get_verbose()) {
 		// v_grid
@@ -254,7 +274,7 @@ static void write_flag(FILE* out_stream, float height)
 		sl.b.x = fd.blue_width;
 		sl.a.y = sl.b.y = 0.0;
 		for (i = 0; i < 11; i++) {
-			svg_write_line(out_stream, &style, "v_grid", &sl);
+			svg_write_line(out_stream, &style, NULL, "v_grid", &sl);
 			sl.a.y = sl.b.y += fd.star_v_grid;
 		}
 
@@ -266,26 +286,19 @@ static void write_flag(FILE* out_stream, float height)
 		sl.b.y = fd.blue_height;
 		sl.a.x = sl.b.x = 0.0;
 		for (i = 0; i < 13; i++) {
-			svg_write_line(out_stream, &style, "h_grid", &sl);
+			svg_write_line(out_stream, &style, NULL, "h_grid", &sl);
 			sl.a.x = sl.b.x += fd.star_h_grid;
 		}
 	}
 	
-	// stars
-	//svg_style_set(&style, flag_colors_full.white, NULL, 0);
-	svg_style_set(&style, _hex_color_yellow, NULL, 0);
+	write_stars(out_stream, &fd);
 
-	star_params.points = 5;
-	star_params.density = 2;
-	star_params.radius = fd.star_diameter / 2.0;
-	star_params.rotation = -90.0;
-	svg_write_star(out_stream, &style, "star_1", &star_params);
 }
 
 static void write_svg(FILE* out_stream, float height)
 {
 	svg_open_svg(out_stream, NULL);
-	//debug_svg_stream = out_stream;
+	svg_debug_stream_set(out_stream);
 	write_flag(out_stream, height);
 	svg_close_svg(out_stream);
 }

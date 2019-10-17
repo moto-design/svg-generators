@@ -20,8 +20,6 @@
 #include "mem.h"
 #include "svg.h"
 
-FILE *debug_svg_stream;
-
 struct point_c *polar_to_cart(const struct point_p *p, struct point_c *c)
 {
 	int fe_err;
@@ -90,12 +88,13 @@ void debug_print_line(const char *msg, const struct line_c *line)
 	debug("%sslope     = %f deg\n", msg, rad_to_deg(line->slope));
 	debug("%sintercept = %f\n", msg, line->intercept);
 
-	if (debug_svg_stream) {
+	if (svg_debug_stream()) {
 		struct svg_line sl;
 
 		sl.a = line->a;
 		sl.b = line->b;
-		svg_write_line(debug_svg_stream, &svg_style_red_red, msg, &sl);
+		svg_write_line(svg_debug_stream(), &svg_style_red_red, NULL,
+			msg, &sl);
 	}
 }
 
