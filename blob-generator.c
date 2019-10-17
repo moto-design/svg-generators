@@ -349,7 +349,7 @@ static void write_blob(FILE* out_stream, const struct svg_style *style,
 		blob_id, node_count, pos->column, pos->row,
 		blob_offset.x, blob_offset.y);
 
-	svg_open_path(out_stream, style, blob_id);
+	svg_open_path(out_stream, style, NULL, blob_id);
 
 	for (node = 0, point_p.t = 0; node < node_count; node++) {
 		struct point_c point_c;
@@ -416,10 +416,10 @@ static void write_svg(FILE* out_stream, const struct grid_params *grid_params,
 
 	if (background) {
 		svg_write_background(out_stream, &svg_style_royal_no_stroke,
-			&background_rect);
+			NULL, &background_rect);
 	}
 
-	svg_open_group(out_stream, "camo_blobs");
+	svg_open_group(out_stream, NULL, NULL, "camo_blobs");
 
 	render_order = random_array(grid_params->columns * grid_params->rows);
 	svg_stroke_set(&style.stroke,  NULL, 0);

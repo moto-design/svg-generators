@@ -382,7 +382,7 @@ static void write_block(FILE* out_stream, const struct block_params *block)
 	debug(" TL %f,%f\n", block->top_left.x, block->top_left.y);
 	debug(" TR %f,%f\n", block->top_right.x, block->top_right.y);
 
-	svg_open_path(out_stream, &block->style, block->id);
+	svg_open_path(out_stream, &block->style, NULL, block->id);
 	fprintf(out_stream, "   d=\"M %f,%f\n", block->bottom_left.x, block->bottom_left.y);
 	fprintf(out_stream, "    L %f,%f\n", block->top_left.x, block->top_left.y);
 	fprintf(out_stream, "    L %f,%f\n", block->top_right.x, block->top_right.y);
@@ -523,11 +523,12 @@ static void write_svg(FILE* out_stream,
 	svg_open_svg(out_stream, &background_rect);
 
 	if (0 && background) {
-		svg_write_background(out_stream, &svg_style_light_gray_no_stroke,
+		svg_write_background(out_stream,
+			&svg_style_light_gray_no_stroke, NULL,
 			&background_rect);
 	}
 
-	svg_open_group(out_stream, "hannah_stripes");
+	svg_open_group(out_stream, NULL, NULL, "hannah_stripes");
 
 	edges = get_edges(stripe_params, block_array);
 

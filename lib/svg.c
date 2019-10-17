@@ -14,6 +14,18 @@
 #include "log.h"
 #include "svg.h"
 
+static FILE *debug_stream;
+
+FILE *svg_debug_stream()
+{
+	return debug_stream;
+}
+
+void svg_debug_stream_set(FILE *stream)
+{
+	debug_stream = stream;
+}
+
 struct svg_fill *svg_fill_set(struct svg_fill *fill, const char *color)
 {
 	assert(fill);
@@ -66,11 +78,55 @@ void svg_close_svg(FILE *stream)
 	fprintf(stream, "</svg>\n");
 }
 
-void svg_open_group(FILE *stream, const char *id)
+static void svg_write_transform(FILE *stream,
+	const struct svg_transform *transform)
+{
+//     transform="rotate(-10 50 100)
+//               translate(-36 45.5)
+//               skewX(40)
+//               scale(1 0.5)"
+
+	if (transform) {
+		fprintf(stream, "   transform=\"\n");
+
+		if (transform->translate.x != null_point_c.x) {
+			fprintf(stream, "     translate(%f %f)\n",
+				transform->translate.x, transform->translate.y);
+		}
+
+		if (transform->scale.x != null_point_c.x) {
+			fprintf(stream, "     scale(%f %f)\n",
+				transform->scale.x, transform->scale.y);
+		}
+
+		if (transform->rotation.angle) {
+			fprintf(stream, "     rotate(%f",
+				transform->rotation.angle);
+			if (transform->rotation.p.x != null_point_c.x) {
+				fprintf(stream, "%f %f",
+					transform->rotation.p.x,
+					transform->rotation.p.y);
+			}
+			fprintf(stream, ")\n");
+		}
+
+		fprintf(stream, "   \"\n");
+	}
+}
+
+void svg_open_group(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id)
 {
 	fprintf(stream,
-		" <g  id=\"%s\" inkscape:label=\"%s\" inkscape:groupmode=\"layer\">\n",
+		" <g  id=\"%s\" inkscape:label=\"%s\" inkscape:groupmode=\"layer\"",
 		id, id);
+
+	if (style) {
+		fprintf(stream, " "); // TODO.
+	}
+
+	svg_write_transform(stream, transform);
+	fprintf(stream, ">\n");
 }
 
 void svg_close_group(FILE *stream)
@@ -78,20 +134,23 @@ void svg_close_group(FILE *stream)
 	fprintf(stream, " </g>\n");
 }
 
-
 void svg_open_object(FILE *stream, const struct svg_style *style,
-	const char *id, const char *type)
+	const struct svg_transform *transform, const char *id, const char *type)
 {
 	fprintf(stream, "  <%s id=\"%s\"\n", type, id);
 
-	if (style && is_hex_color(style->fill.color)) {
-		fprintf(stream, "   fill=\"%s\"\n", style->fill.color);
+	if (style) {
+		if (is_hex_color(style->fill.color)) {
+			fprintf(stream, "   fill=\"%s\"\n", style->fill.color);
+		}
+
+		if (is_hex_color(style->stroke.color)) {
+			fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n",
+				style->stroke.color, style->stroke.width);
+		}
 	}
 
-	if (style && is_hex_color(style->stroke.color)) {
-		fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n",
-			style->stroke.color, style->stroke.width);
-	}
+	svg_write_transform(stream, transform);
 }
 
 void svg_close_object(FILE *stream)
@@ -99,28 +158,30 @@ void svg_close_object(FILE *stream)
 	fprintf(stream, "  />\n");
 }
 
-void svg_open_path(FILE *stream, const struct svg_style *style, const char *id)
+void svg_open_path(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id)
 {
-	svg_open_object(stream, style, id, "path");
+	svg_open_object(stream, style, transform, id, "path");
 }
 
 void svg_open_polygon(FILE *stream, const struct svg_style *style,
-	const char *id, const struct point_c *position)
+	const struct svg_transform *transform, const char *id)
 {
-	svg_open_object(stream, style, id, "polygon");
-	fprintf(stream, "   transform=\"translate(0,0)\"\n");
+	svg_open_object(stream, style, transform, id, "polygon");
 	fprintf(stream, "   points=\"\n");
 }
 
 void svg_close_polygon(FILE *stream)
 {
 	fprintf(stream, "   \"\n");
+	svg_close_object(stream);
 }
 
-void svg_write_line(FILE *stream, const struct svg_style *style, const char *id,
+void svg_write_line(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id,
 	const struct svg_line *line)
 {
-	svg_open_object(stream, style, id, "line");
+	svg_open_object(stream, style, transform, id, "line");
 //x1="0" y1="0" x2="200" y2="200"
 	fprintf(stream,
 		"   x1=\"%f\" y1=\"%f\"\n  x2=\"%f\" y2=\"%f\"\n",
@@ -130,9 +191,10 @@ void svg_write_line(FILE *stream, const struct svg_style *style, const char *id,
 }
 
 void svg_write_rect(FILE *stream, const struct svg_style *style,
-	const char *id, const struct svg_rect *rect)
+	const struct svg_transform *transform, const char *id,
+	const struct svg_rect *rect)
 {
-	svg_open_object(stream, style, id, "rect");
+	svg_open_object(stream, style, transform, id, "rect");
 
 	fprintf(stream,
 		"   width=\"%f\"\n   height=\"%f\"\n   x=\"%f\"\n   y=\"%f\"\n   rx=\"%f\"\n",
@@ -141,36 +203,34 @@ void svg_write_rect(FILE *stream, const struct svg_style *style,
 	svg_close_object(stream);
 }
 
-void svg_write_background(FILE* out_stream, const struct svg_style *style,
+void svg_write_background(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform,
 	const struct svg_rect *background_rect)
 {
 	assert(is_hex_color(style->fill.color));
 
-	svg_open_group(out_stream, "background");
-	svg_write_rect(out_stream, style, "background", background_rect);
-	svg_close_group(out_stream);
+	svg_open_group(stream, style, transform, "background");
+	svg_write_rect(stream, style, transform, "background", background_rect);
+	svg_close_group(stream);
 }
 
-void svg_write_star(FILE* out_stream, const struct svg_style *style,
-	const char *id, const struct star_params *star_params)
+void svg_write_star(FILE *stream, const struct svg_style *style,
+	const struct svg_transform *transform, const char *id,
+	const struct star_params *star_params)
 {
 	struct node_buffer nb;
 	unsigned int node;
 
 	polygon_star_setup(star_params, &nb);
-
-	svg_open_polygon(out_stream, style, id);
+	svg_open_polygon(stream, style, transform, id);
 
 	for (node = 0; node < nb.node_count; node++) {
 
-		fprintf(out_stream, "     %f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
+		fprintf(stream, "     %f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
 		//debug("node_%u: cart = {%f, %f}\n", node, nb.nodes[node].x,
 		//	nb.nodes[node].y);
 	}
 
-	svg_close_polygon(out_stream);
-	svg_close_object(out_stream);
-
+	svg_close_polygon(stream);
 	node_buffer_clean(&nb);
 }
-
