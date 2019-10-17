@@ -78,14 +78,24 @@ void svg_close_svg(FILE *stream)
 	fprintf(stream, "</svg>\n");
 }
 
+static void svg_write_style(FILE *stream, const struct svg_style *style)
+{
+	TODO.
+	if (style) {
+		if (is_hex_color(style->fill.color)) {
+			fprintf(stream, "   fill=\"%s\"\n", style->fill.color);
+		}
+
+		if (is_hex_color(style->stroke.color)) {
+			fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n",
+				style->stroke.color, style->stroke.width);
+		}
+	}
+}
+
 static void svg_write_transform(FILE *stream,
 	const struct svg_transform *transform)
 {
-//     transform="rotate(-10 50 100)
-//               translate(-36 45.5)
-//               skewX(40)
-//               scale(1 0.5)"
-
 	if (transform) {
 		fprintf(stream, "   transform=\"\n");
 
@@ -121,11 +131,9 @@ void svg_open_group(FILE *stream, const struct svg_style *style,
 		" <g  id=\"%s\" inkscape:label=\"%s\" inkscape:groupmode=\"layer\"",
 		id, id);
 
-	if (style) {
-		fprintf(stream, " "); // TODO.
-	}
-
+	svg_write_style(stream, style);
 	svg_write_transform(stream, transform);
+
 	fprintf(stream, ">\n");
 }
 
@@ -139,17 +147,7 @@ void svg_open_object(FILE *stream, const struct svg_style *style,
 {
 	fprintf(stream, "  <%s id=\"%s\"\n", type, id);
 
-	if (style) {
-		if (is_hex_color(style->fill.color)) {
-			fprintf(stream, "   fill=\"%s\"\n", style->fill.color);
-		}
-
-		if (is_hex_color(style->stroke.color)) {
-			fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n",
-				style->stroke.color, style->stroke.width);
-		}
-	}
-
+	svg_write_style(stream, style);
 	svg_write_transform(stream, transform);
 }
 
