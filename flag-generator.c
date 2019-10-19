@@ -159,7 +159,7 @@ struct flag_dimensions {
 	float blue_width;
 	float star_v_grid;
 	float star_h_grid;
-	float stripe_width;
+	float stripe_height;
 	float star_diameter;
 };
 
@@ -189,8 +189,8 @@ static void flag_dimensions_fill(struct flag_dimensions *fd, float height)
 	fd->blue_width = fd->width * 2.0 / 5.0;
 	fd->star_v_grid = fd->blue_height / 10.0;
 	fd->star_h_grid = fd->blue_width / 12.0;
-	fd->stripe_width = fd->height / 13.0;
-	fd->star_diameter = fd->stripe_width * 4.0 / 5.0;
+	fd->stripe_height = fd->height / 13.0;
+	fd->star_diameter = fd->stripe_height * 4.0 / 5.0;
 }
 
 static void write_stars(FILE* out_stream, struct flag_dimensions *fd)
@@ -204,14 +204,48 @@ static void write_stars(FILE* out_stream, struct flag_dimensions *fd)
 	star_params.radius = fd->star_diameter / 2.0;
 	star_params.rotation = -90.0;
 
-	//svg_style_set(&style, flag_colors_full.white, NULL, 0);
-	svg_style_set(&style, _hex_color_yellow, NULL, 0);
+	svg_style_set(&style, flag_colors_full.white, NULL, 0);
+	//svg_style_set(&style, _hex_color_yellow, NULL, 0);
 
 	tform = null_svg_transform;
 	tform.translate.x = fd->star_h_grid;
 	tform.translate.y = fd->star_v_grid;
 
-	svg_write_star(out_stream, &style, &tform, "star_1", &star_params);
+	svg_open_group(out_stream, &style, NULL, "star_group");
+	svg_open_group(out_stream, NULL, NULL, "stars_18");
+	svg_open_group(out_stream, NULL, NULL, "stars_9");
+	svg_open_group(out_stream, NULL, NULL, "stars_5");
+	svg_open_group(out_stream, NULL, NULL, "stars_4");
+	svg_write_star(out_stream, NULL, &tform, "stars_1", &star_params);
+
+	fprintf(out_stream, "<use xlink:href=\"#stars_1\" y=\"%f\"/>\n",
+		2.0 * fd->star_v_grid);
+	fprintf(out_stream, "<use xlink:href=\"#stars_1\" y=\"%f\"/>\n",
+		4.0 * fd->star_v_grid);
+	fprintf(out_stream, "<use xlink:href=\"#stars_1\" y=\"%f\"/>\n",
+		6.0 * fd->star_v_grid);
+	svg_close_group(out_stream); // stars_4
+
+	fprintf(out_stream, "<use xlink:href=\"#stars_1\" y=\"%f\"/>\n",
+		8.0 * fd->star_v_grid);
+	svg_close_group(out_stream); // stars_5
+
+	fprintf(out_stream, "<use xlink:href=\"#stars_4\" x=\"%f\" y=\"%f\"/>\n",
+		1.0 * fd->star_h_grid, 1.0 * fd->star_v_grid);
+	svg_close_group(out_stream); // stars_9
+
+	fprintf(out_stream, "<use xlink:href=\"#stars_9\" x=\"%f\"/>\n",
+		2.0 * fd->star_h_grid);
+	svg_close_group(out_stream); // stars_18
+
+	fprintf(out_stream, "<use xlink:href=\"#stars_18\" x=\"%f\"/>\n",
+		4.0 * fd->star_h_grid);
+	fprintf(out_stream, "<use xlink:href=\"#stars_9\" x=\"%f\"/>\n",
+		8.0 * fd->star_h_grid);
+	fprintf(out_stream, "<use xlink:href=\"#stars_5\" x=\"%f\"/>\n",
+		10.0 * fd->star_h_grid);
+
+	svg_close_group(out_stream); // star_group
 }
 
 static void write_flag(FILE* out_stream, float height)
@@ -232,11 +266,12 @@ static void write_flag(FILE* out_stream, float height)
 	debug("blue_width = %f\n", fd.blue_width);
 	debug("star_v_grid = %f\n", fd.star_v_grid);
 	debug("star_h_grid = %f\n", fd.star_h_grid);
-	debug("stripe_width = %f\n", fd.stripe_width);
+	debug("stripe_height = %f\n", fd.stripe_height);
 	debug("star_diameter = %f\n", fd.star_diameter);
 
 	// white_background
 	svg_style_set(&style, flag_colors_full.white, NULL, 0);
+	//svg_style_set(&style, _hex_color_light_gray, NULL, 0);
 
 	sr.width = fd.width;
 	sr.height = fd.height;
@@ -247,16 +282,16 @@ static void write_flag(FILE* out_stream, float height)
 	svg_write_rect(out_stream, &style, NULL, "white_background", &sr);
 
 	// red_stripes
-	// TODO: Convert to single path.
-	svg_style_set(&style, NULL, flag_colors_full.red, fd.stripe_width);
+	svg_style_set(&style, NULL, flag_colors_full.red, fd.stripe_height);
 
-	sl.a.x = 0.0;
-	sl.b.x = fd.width;
-	sl.a.y = sl.b.y = fd.stripe_width / 2.0;
+	svg_open_path(out_stream, &style, NULL, "red_stripes");
+	fprintf(out_stream, "d=\"\n");
 	for (i = 0; i < 7; i++) {
-		svg_write_line(out_stream, &style, NULL, "red_stripes", &sl);
-		sl.a.y = sl.b.y += 2.0 * fd.stripe_width;
+		fprintf(out_stream, "M0,%f H%f\n",
+			(0.5 + 2.0 * i) * fd.stripe_height, fd.width);
 	}
+	fprintf(out_stream, "\"\n");
+	svg_close_object(out_stream);
 
 	// blue_background
 	svg_style_set(&style, flag_colors_full.blue, NULL, 0);
@@ -265,7 +300,7 @@ static void write_flag(FILE* out_stream, float height)
 	sr.height = fd.blue_height;
 	svg_write_rect(out_stream, &style, NULL, "blue_background", &sr);
 
-	if (log_get_verbose()) {
+	if (svg_debug_stream()) {
 		// v_grid
 		style = svg_style_light_green_light_green;
 		style.stroke.width = 1.0 + fd.height / 1000.0;
@@ -274,7 +309,7 @@ static void write_flag(FILE* out_stream, float height)
 		sl.b.x = fd.blue_width;
 		sl.a.y = sl.b.y = 0.0;
 		for (i = 0; i < 11; i++) {
-			svg_write_line(out_stream, &style, NULL, "v_grid", &sl);
+			svg_write_line(svg_debug_stream(), &style, NULL, "v_grid", &sl);
 			sl.a.y = sl.b.y += fd.star_v_grid;
 		}
 
@@ -286,7 +321,7 @@ static void write_flag(FILE* out_stream, float height)
 		sl.b.y = fd.blue_height;
 		sl.a.x = sl.b.x = 0.0;
 		for (i = 0; i < 13; i++) {
-			svg_write_line(out_stream, &style, NULL, "h_grid", &sl);
+			svg_write_line(svg_debug_stream(), &style, NULL, "h_grid", &sl);
 			sl.a.x = sl.b.x += fd.star_h_grid;
 		}
 	}
@@ -298,7 +333,7 @@ static void write_flag(FILE* out_stream, float height)
 static void write_svg(FILE* out_stream, float height)
 {
 	svg_open_svg(out_stream, NULL);
-	svg_debug_stream_set(out_stream);
+	//svg_debug_stream_set(out_stream);
 	write_flag(out_stream, height);
 	svg_close_svg(out_stream);
 }

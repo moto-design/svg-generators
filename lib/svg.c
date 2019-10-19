@@ -57,9 +57,10 @@ struct svg_stroke *svg_stroke_set(struct svg_stroke *stroke, const char *color,
 
 void svg_open_svg(FILE *stream, const struct svg_rect *background_rect)
 {
-	fprintf(stream, "<svg \n"
-		"  xmlns=\"http://www.w3.org/2000/svg\"\n"
-		"  xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\"");
+	fprintf(stream, "<svg\n"
+		"xmlns=\"http://www.w3.org/2000/svg\"\n"
+		"xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\"\n"
+		"xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n");
 
 	if (background_rect) {
 		fprintf(stream, "\n"
@@ -71,6 +72,11 @@ void svg_open_svg(FILE *stream, const struct svg_rect *background_rect)
 			background_rect->width, background_rect->height);
 	}
 	fprintf(stream, ">\n");
+
+	fprintf(stream, "<metadata>\n"
+		" <rdf:RDF>\n"
+		" </rdf:RDF>\n"
+		"</metadata>\n");
 }
 
 void svg_close_svg(FILE *stream)
@@ -80,57 +86,61 @@ void svg_close_svg(FILE *stream)
 
 static void svg_write_style(FILE *stream, const struct svg_style *style)
 {
-	TODO.
-	if (style) {
-		if (is_hex_color(style->fill.color)) {
-			fprintf(stream, "   fill=\"%s\"\n", style->fill.color);
-		}
+	if (!style) {
+		return;
+	}
 
-		if (is_hex_color(style->stroke.color)) {
-			fprintf(stream, "   stroke=\"%s\" stroke-width=\"%u\"\n",
-				style->stroke.color, style->stroke.width);
-		}
+	if (is_hex_color(style->fill.color)) {
+		fprintf(stream, "fill=\"%s\"\n", style->fill.color);
+	}
+
+	if (is_hex_color(style->stroke.color)) {
+		fprintf(stream, "stroke=\"%s\" stroke-width=\"%u\"\n",
+			style->stroke.color, style->stroke.width);
 	}
 }
 
 static void svg_write_transform(FILE *stream,
 	const struct svg_transform *transform)
 {
-	if (transform) {
-		fprintf(stream, "   transform=\"\n");
-
-		if (transform->translate.x != null_point_c.x) {
-			fprintf(stream, "     translate(%f %f)\n",
-				transform->translate.x, transform->translate.y);
-		}
-
-		if (transform->scale.x != null_point_c.x) {
-			fprintf(stream, "     scale(%f %f)\n",
-				transform->scale.x, transform->scale.y);
-		}
-
-		if (transform->rotation.angle) {
-			fprintf(stream, "     rotate(%f",
-				transform->rotation.angle);
-			if (transform->rotation.p.x != null_point_c.x) {
-				fprintf(stream, "%f %f",
-					transform->rotation.p.x,
-					transform->rotation.p.y);
-			}
-			fprintf(stream, ")\n");
-		}
-
-		fprintf(stream, "   \"\n");
+	if (!transform) {
+		return;
 	}
+
+	fprintf(stream, "transform=\"\n");
+
+	if (transform->translate.x != null_point_c.x) {
+		fprintf(stream, "translate(%f %f)\n",
+			transform->translate.x, transform->translate.y);
+	}
+
+	if (transform->scale.x != null_point_c.x) {
+		fprintf(stream, "scale(%f %f)\n",
+			transform->scale.x, transform->scale.y);
+	}
+
+	if (transform->rotation.angle) {
+		fprintf(stream, "rotate(%f",
+			transform->rotation.angle);
+		if (transform->rotation.p.x != null_point_c.x) {
+			fprintf(stream, "%f %f",
+				transform->rotation.p.x,
+				transform->rotation.p.y);
+		}
+		fprintf(stream, ")\n");
+	}
+
+	fprintf(stream, "\"\n");
 }
 
 void svg_open_group(FILE *stream, const struct svg_style *style,
 	const struct svg_transform *transform, const char *id)
 {
-	fprintf(stream,
-		" <g  id=\"%s\" inkscape:label=\"%s\" inkscape:groupmode=\"layer\"",
-		id, id);
+	fprintf(stream, "<g\n");
 
+	if (id){
+		fprintf(stream, "id=\"%s\"\n", id);
+	}
 	svg_write_style(stream, style);
 	svg_write_transform(stream, transform);
 
@@ -139,13 +149,13 @@ void svg_open_group(FILE *stream, const struct svg_style *style,
 
 void svg_close_group(FILE *stream)
 {
-	fprintf(stream, " </g>\n");
+	fprintf(stream, "</g>\n");
 }
 
 void svg_open_object(FILE *stream, const struct svg_style *style,
 	const struct svg_transform *transform, const char *id, const char *type)
 {
-	fprintf(stream, "  <%s id=\"%s\"\n", type, id);
+	fprintf(stream, "<%s id=\"%s\"\n", type, id);
 
 	svg_write_style(stream, style);
 	svg_write_transform(stream, transform);
@@ -153,7 +163,7 @@ void svg_open_object(FILE *stream, const struct svg_style *style,
 
 void svg_close_object(FILE *stream)
 {
-	fprintf(stream, "  />\n");
+	fprintf(stream, "/>\n");
 }
 
 void svg_open_path(FILE *stream, const struct svg_style *style,
@@ -166,12 +176,12 @@ void svg_open_polygon(FILE *stream, const struct svg_style *style,
 	const struct svg_transform *transform, const char *id)
 {
 	svg_open_object(stream, style, transform, id, "polygon");
-	fprintf(stream, "   points=\"\n");
+	fprintf(stream, "points=\"\n");
 }
 
 void svg_close_polygon(FILE *stream)
 {
-	fprintf(stream, "   \"\n");
+	fprintf(stream, "\"\n");
 	svg_close_object(stream);
 }
 
@@ -182,7 +192,7 @@ void svg_write_line(FILE *stream, const struct svg_style *style,
 	svg_open_object(stream, style, transform, id, "line");
 //x1="0" y1="0" x2="200" y2="200"
 	fprintf(stream,
-		"   x1=\"%f\" y1=\"%f\"\n  x2=\"%f\" y2=\"%f\"\n",
+		"x1=\"%f\" y1=\"%f\"\n  x2=\"%f\" y2=\"%f\"\n",
 		line->a.x, line->a.y, line->b.x, line->b.y);
 
 	svg_close_object(stream);
@@ -195,7 +205,7 @@ void svg_write_rect(FILE *stream, const struct svg_style *style,
 	svg_open_object(stream, style, transform, id, "rect");
 
 	fprintf(stream,
-		"   width=\"%f\"\n   height=\"%f\"\n   x=\"%f\"\n   y=\"%f\"\n   rx=\"%f\"\n",
+		"width=\"%f\"\nheight=\"%f\"\nx=\"%f\"\ny=\"%f\"\nrx=\"%f\"\n",
 		rect->width, rect->height, rect->x, rect->y, rect->rx);
 
 	svg_close_object(stream);
@@ -221,10 +231,9 @@ void svg_write_star(FILE *stream, const struct svg_style *style,
 
 	polygon_star_setup(star_params, &nb);
 	svg_open_polygon(stream, style, transform, id);
-
 	for (node = 0; node < nb.node_count; node++) {
 
-		fprintf(stream, "     %f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
+		fprintf(stream, "%f,%f\n", nb.nodes[node].x, nb.nodes[node].y);
 		//debug("node_%u: cart = {%f, %f}\n", node, nb.nodes[node].x,
 		//	nb.nodes[node].y);
 	}

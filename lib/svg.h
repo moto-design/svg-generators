@@ -15,9 +15,8 @@ struct svg_fill {
 };
 
 struct svg_stroke {
-	unsigned int width;
 	char color[hex_color_len];
-	char *dasharray;
+	unsigned int width;
 };
 
 struct svg_style {
@@ -55,56 +54,48 @@ static const struct svg_style svg_style_royal_no_stroke = {
 	.fill.color = _hex_color_royal,
 	.stroke.color = _hex_color_null,
 	.stroke.width = 0,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_light_gray_no_stroke = {
 	.fill.color = _hex_color_light_gray,
 	.stroke.color = _hex_color_null,
 	.stroke.width = 0,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_gray_no_stroke = {
 	.fill.color = _hex_color_gray,
 	.stroke.color = _hex_color_null,
 	.stroke.width = 0,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_red_red = {
 	.fill.color = _hex_color_red,
 	.stroke.color = _hex_color_red,
 	.stroke.width = 1,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_yellow_blue = {
 	.fill.color = _hex_color_yellow,
 	.stroke.color = _hex_color_blue,
 	.stroke.width = 1,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_light_green_light_green = {
 	.fill.color = _hex_color_light_green,
 	.stroke.color = _hex_color_light_green,
 	.stroke.width = 1,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_black_black = {
 	.fill.color = _hex_color_black,
 	.stroke.color = _hex_color_black,
 	.stroke.width = 1,
-	.stroke.dasharray = NULL,
 };
 
 static const struct svg_style svg_style_white_white = {
 	.fill.color = _hex_color_white,
 	.stroke.color = _hex_color_white,
 	.stroke.width = 1,
-	.stroke.dasharray = NULL,
 };
 
 FILE *svg_debug_stream(void);
