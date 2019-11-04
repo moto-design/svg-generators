@@ -176,9 +176,9 @@ __attribute__((unused)) static const struct flag_colors flag_colors_full = {
 };
 
 __attribute__((unused)) static const struct flag_colors flag_colors_od = {
-	.red = "#706b5c",
-	.white = "#d9d9d9",
-	.blue = "#585850",
+	.red = "#565f53",
+	.white = "#cacaca",
+	.blue = "#495147",
 };
 
 static void flag_dimensions_fill(struct flag_dimensions *fd, float height)
