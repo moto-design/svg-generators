@@ -115,6 +115,8 @@ static inline struct svg_style *svg_style_set(struct svg_style *style, const cha
 void svg_open_svg(FILE *stream, const struct svg_rect *background_rect);
 void svg_close_svg(FILE *stream);
 
+void svg_write_comment(FILE *stream, const char *text);
+
 void svg_open_group(FILE *stream, const struct svg_style *style,
 	const struct svg_transform *transform, const char *id);
 void svg_close_group(FILE *stream);
