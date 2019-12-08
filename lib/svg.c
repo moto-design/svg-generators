@@ -86,7 +86,7 @@ void svg_close_svg(FILE *stream)
 
 void svg_write_comment(FILE *stream, const char *text)
 {
-	fprintf(stream, "<!--\n%s-->\n");
+	fprintf(stream, "<!--\n%s-->\n", text);
 }
 
 static void svg_write_style(FILE *stream, const struct svg_style *style)
