@@ -1,0 +1,85 @@
+<svg
+xmlns="http://www.w3.org/2000/svg"
+xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+<metadata>
+ <rdf:RDF>
+ </rdf:RDF>
+</metadata>
+<rect id="white_background"
+fill="#ffffff"
+width="190.000000"
+height="100.000000"
+x="0.000000"
+y="0.000000"
+rx="0.000000"
+/>
+<path id="red_stripes"
+stroke="#b22234" stroke-width="7"
+d="
+M0,3.846154 H190.000000
+M0,19.230769 H190.000000
+M0,34.615384 H190.000000
+M0,49.999999 H190.000000
+M0,65.384614 H190.000000
+M0,80.769228 H190.000000
+M0,96.153843 H190.000000
+"
+/>
+<rect id="blue_background"
+fill="#3c3b6e"
+width="76.000000"
+height="53.846153"
+x="0.000000"
+y="0.000000"
+rx="0.000000"
+/>
+<g
+id="star_group"
+fill="#ffffff"
+>
+<g
+id="stars_18"
+>
+<g
+id="stars_9"
+>
+<g
+id="stars_5"
+>
+<g
+id="stars_4"
+>
+<polygon id="stars_1"
+transform="
+translate(6.333333 5.384615)
+"
+points="
+-0.000000,-3.076923
+0.690812,-0.950821
+2.926328,-0.950822
+1.117758,0.363181
+1.808570,2.489283
+-0.000000,1.175280
+-1.808570,2.489283
+-1.117758,0.363182
+-2.926328,-0.950821
+-0.690812,-0.950822
+"
+/>
+<use xlink:href="#stars_1" y="10.769231"/>
+<use xlink:href="#stars_1" y="21.538462"/>
+<use xlink:href="#stars_1" y="32.307693"/>
+</g>
+<use xlink:href="#stars_1" y="43.076923"/>
+</g>
+<use xlink:href="#stars_4" x="6.333333" y="5.384615"/>
+</g>
+<use xlink:href="#stars_9" x="12.666667"/>
+</g>
+<use xlink:href="#stars_18" x="25.333334"/>
+<use xlink:href="#stars_9" x="50.666668"/>
+<use xlink:href="#stars_5" x="63.333335"/>
+</g>
+</svg>

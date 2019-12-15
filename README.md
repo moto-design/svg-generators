@@ -24,6 +24,14 @@ Generates SVG file of star.
 ![star-7-2](samples/star-7-2.svg)
 ![star-7-3](samples/star-7-3.svg)
 
+## flag-generator
+
+Generates SVG file of American flag.
+
+### Flag Samples
+
+![usa-flag](samples/usa-flag.svg)
+
 ## stripe-generator
 
 Generates SVG file of Yamaha like stripe.
