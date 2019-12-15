@@ -20,6 +20,9 @@ Generates SVG file of star.
 
 ### Star Samples
 
+![star-5-2](samples/star-5-2.svg)
+![star-7-2](samples/star-7-2.svg)
+![star-7-3](samples/star-7-3.svg)
 
 ## stripe-generator
 
