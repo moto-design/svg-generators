@@ -207,15 +207,15 @@ static void write_svg(FILE* out_stream, const struct star_params *star_params)
 	snprintf(star_id, sizeof(star_id), "star_%d_%d", star_params->points,
 		star_params->density);
 
-	background_rect.width = 2.6 * star_params->radius;
+	background_rect.width = 2.2 * star_params->radius;
 	background_rect.height = background_rect.width;
 
 	background_rect.x = -background_rect.width / 2;
 	background_rect.y = -background_rect.height / 2;
 
 	// FIXME: for debug
-	background_rect.x = 0.0;
-	background_rect.y = -background_rect.height;
+	//background_rect.x = 0.0;
+	//background_rect.y = -background_rect.height;
 
 	svg_open_svg(out_stream, &background_rect);
 	//svg_debug_stream_set(out_stream);
