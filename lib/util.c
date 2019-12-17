@@ -94,7 +94,6 @@ float to_float(const char *str)
 	bool found_decimal = false;
 
 	assert(str);
-	log_set_verbose(true);
 	debug("str = @%s@\n", str);
 
 	start = eat_front_ws(str);
