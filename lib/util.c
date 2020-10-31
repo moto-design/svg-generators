@@ -53,36 +53,9 @@ void eat_tail_ws(char *p)
 		//	start, *p);
 		p--;
 	}
-	
+
 	*(p + 1) = 0;
 	//debug("< '%s'\n", start);
-}
-
-unsigned int to_unsigned(const char *str)
-{
-	const char *p;
-	unsigned long u;
-
-	for (p = str; *p; p++) {
-		if (!isdigit(*p)) {
-			error("isdigit failed: '%s'\n", str);
-			return UINT_MAX;
-		}
-	}
-
-	u = strtoul(str, NULL, 10);
-
-	if (u == ULONG_MAX) {
-		error("strtoul '%s' failed: %s\n", str, strerror(errno));
-		return UINT_MAX;
-	}
-	
-	if (u > UINT_MAX) {
-		error("too big: %lu\n", u);
-		return UINT_MAX;
-	}
-
-	return (unsigned int)u;
 }
 
 float to_float(const char *str)
@@ -110,7 +83,7 @@ float to_float(const char *str)
 			}
 			found_decimal = true;
 			continue;
-		}		
+		}
 		if (!isdigit(*p)) {
 			error("isdigit failed: '%s'\n", str);
 			return HUGE_VALF;
@@ -125,6 +98,60 @@ float to_float(const char *str)
 	}
 
 	return f;
+}
+
+int to_signed(const char *str)
+{
+	const char *p;
+	long l;
+
+	for (p = str; *p; p++) {
+		if (!isdigit(*p)) {
+			log("ERROR: isdigit failed: '%s'\n", str);
+			return INT_MAX;
+		}
+	}
+
+	l = strtoul(str, NULL, 10);
+
+	if (l == LONG_MAX) {
+		log("ERROR: strtoul '%s' failed: %s\n", str, strerror(errno));
+		return INT_MAX;
+	}
+
+	if (l > INT_MAX) {
+		log("ERROR: too big: %lu\n", l);
+		return INT_MAX;
+	}
+
+	return (int)l;
+}
+
+unsigned int to_unsigned(const char *str)
+{
+	const char *p;
+	unsigned long u;
+
+	for (p = str; *p; p++) {
+		if (!isdigit(*p)) {
+			error("isdigit failed: '%s'\n", str);
+			return UINT_MAX;
+		}
+	}
+
+	u = strtoul(str, NULL, 10);
+
+	if (u == ULONG_MAX) {
+		error("strtoul '%s' failed: %s\n", str, strerror(errno));
+		return UINT_MAX;
+	}
+
+	if (u > UINT_MAX) {
+		error("too big: %lu\n", u);
+		return UINT_MAX;
+	}
+
+	return (unsigned int)u;
 }
 
 int random_int(int min, int max)
