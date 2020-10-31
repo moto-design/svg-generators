@@ -59,8 +59,11 @@ void svg_open_svg(FILE *stream, const struct svg_rect *background_rect)
 {
 	fprintf(stream, "<svg\n"
 		"xmlns=\"http://www.w3.org/2000/svg\"\n"
+		"xmlns:svg=\"http://www.w3.org/2000/svg\"\n"
+		"xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
+		"xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
 		"xmlns:inkscape=\"http://www.inkscape.org/namespaces/inkscape\"\n"
-		"xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n");
+	);
 
 	if (background_rect) {
 		fprintf(stream, "\n"
