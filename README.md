@@ -11,33 +11,40 @@ Generates SVG file of camouflage blobs.
 ### Blob Samples
 
 ![monochrome](samples/monochrome.svg)
+
 ![monochrome](samples/monochrome-smooth.svg)
+
 ![monochrome](samples/monochrome-arm.svg)
 
 ## star-generator
 
-Generates SVG file of star.
+Generates SVG file of stars.
 
 ### Star Samples
 
 ![star-5-2](samples/star-5-2.svg)
+
 ![star-7-2](samples/star-7-2.svg)
+
 ![star-7-3](samples/star-7-3.svg)
 
 ## flag-generator
 
-Generates SVG file of American flag.
+Generates SVG file of American flags.
 
 ### Flag Samples
 
-![usa-flag](samples/usa-flag.svg)
+![usa-flag](samples/usa-flag.jpg)
+
+![usa-flag-og](samples/usa-flag-od.jpg)
 
 ## stripe-generator
 
-Generates SVG file of Yamaha like stripe.
+Generates SVG file of Yamaha like stripes.
 
 ### Stripe Samples
 
+![Stripe Study](samples/stripe-study.jpg)
 
 ## Licence & Usage
 
