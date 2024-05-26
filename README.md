@@ -1,8 +1,6 @@
 # moto-design SVG Generators
 
-Programs for generating Scalable Vector Graphics image files for camouflage blobs, user defined stars, and Kenny Roberts racing srtipes.
-
-See the [INSTALL](INSTALL) file for installation info.
+Programs for generating Scalable Vector Graphics image files for camouflage blobs, user defined stars, USA flags, and Yamaha like racing srtipes.
 
 ## blob-generator
 
@@ -46,6 +44,18 @@ Generates SVG file of Yamaha like stripes.
 
 ![Stripe Study](samples/stripe-study.jpg)
 
+## Building
+
+To build use commands like these:
+
+./bootstrap<br />
+./configure<br />
+make<br />
+make install
+
 ## Licence & Usage
 
-All files in the [mx-graphics project](https://github.com/moto-design/mx-graphics), unless otherwise noted, are covered by the [Fabricators Design License](https://github.com/moto-design/mx-graphics/blob/master/fabricators-design-license.txt).  The text of the license describes what usage is allowed, and what obligations users have if they choose to use any files.
+All files in the [svg-generators project](https://github.com/glevand/svg-generators), unless
+otherwise noted, are covered by an
+[MIT Plus License](https://github.com/glevand/svg-generators/blob/master/mit-plus-license.txt).
+The text of the license describes what usage is allowed.
